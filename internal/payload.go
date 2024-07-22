@@ -9,7 +9,6 @@ import (
 
 // The protocol will be [VERSION|TYPE|HEADER_SIZE|DATA]
 var VERSION uint8 = 1
-var HEADER_SIZE = 4
 
 const (
 	BinaryType uint8 = iota + 1
