@@ -1,21 +1,21 @@
 package internal
 
 type AddrType struct {
-	protocol string
-	addr     string
+	Protocol string
+	Addr     string
+}
+
+func (a AddrType) Network() string {
+	return a.Protocol
+}
+
+func (a AddrType) String() string {
+	return a.Addr
 }
 
 func NewAddrType(protocol string, addr string) AddrType {
 	return AddrType{
-		protocol: protocol,
-		addr:     addr,
+		Protocol: protocol,
+		Addr:     addr,
 	}
-}
-
-func (a *AddrType) Network() string {
-	return a.protocol
-}
-
-func (a *AddrType) String() string {
-	return a.addr
 }

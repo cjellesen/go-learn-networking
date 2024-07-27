@@ -32,7 +32,7 @@ func TestStringPayload(t *testing.T) {
 }
 
 func TestBinaryPayload(t *testing.T) {
-	msg := Binary([]byte{1, 2, 3, 4, 5})
+	msg := Binary([]byte{1, 2, 100, 10, 5})
 
 	var buffer bytes.Buffer
 	w := io.Writer(&buffer)
@@ -48,11 +48,39 @@ func TestBinaryPayload(t *testing.T) {
 		t.Fatalf("the decoded message is different from the original message")
 	}
 }
+
+func TestInitializationPacket(t *testing.T) {
+	msg := InitializationPacket{
+		PingIntervalMs: 200,
+		NRetries:       10,
+	}
+
+	t.Logf("Decoded message: %q", msg.String())
+	var buffer bytes.Buffer
+	w := io.Writer(&buffer)
+	msg.WriteTo(w)
+
+	r := io.Reader(&buffer)
+	decodedMsg, err := Decode(r)
+	if err != nil && !errors.Is(err, io.EOF) {
+		t.Fatalf("failed to decode the test string, failed with error: %q", err)
+	}
+
+	t.Logf("Decoded message: %q", decodedMsg.String())
+	if !reflect.DeepEqual(msg.Bytes(), decodedMsg.Bytes()) {
+		t.Fatalf("the decoded message is different from the original message")
+	}
+}
+
 func TestPayloadsTransfers(t *testing.T) {
 	b1 := Binary("Clear is better than clever")
 	b2 := Binary("Don't panic")
 	s1 := String("Errors are values.")
-	payloads := []Payload{&b1, &b2, &s1}
+	s3 := InitializationPacket{
+		PingIntervalMs: 200,
+		NRetries:       10,
+	}
+	payloads := []Payload{&b1, &b2, &s1, &s3}
 
 	listener, err := net.Listen("tcp", "127.0.0.1:")
 	if err != nil {

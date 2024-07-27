@@ -7,28 +7,20 @@ import (
 	"os"
 )
 
-type Server struct {
+type Client struct {
 	AddrType net.Addr
 	Logger   *log.Logger
-	Lsn      net.Listener
 }
 
-func NewServer(addr net.Addr) Server {
+func NewClient(addr net.Addr) Client {
 	logger := log.New(
 		os.Stdout,
 		fmt.Sprintf("Constructing a new server of type: %s\n", addr.Network()),
 		log.LUTC,
 	)
-	return Server{
+
+	return Client{
 		AddrType: addr,
 		Logger:   logger,
 	}
-}
-
-func (s *Server) Terminate() error {
-	err := s.Lsn.Close()
-	if err != nil {
-		return err
-	}
-	return nil
 }
