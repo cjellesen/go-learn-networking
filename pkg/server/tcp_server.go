@@ -110,7 +110,7 @@ func (s *TcpServer) respond(payload internal.Payload, conn net.Conn) {
 	case internal.InitializationPacketType:
 		response = "Hey Ho Sailor, go an InitializationPacketType after connection has been initialized, I don't know how to respond to this"
 	case internal.BinaryType:
-		response = "Give me all them binaries!"
+		response = "Give me all them bytes!"
 	case internal.StringType:
 		response = "Give me all them strings!"
 	default:
