@@ -1,24 +1,32 @@
 package client
 
 import (
-	"go-learn-networking/internal"
+	"fmt"
+	"log"
 	"net"
+	"os"
 )
 
 type TcpClient struct {
-	baseClient internal.Client
+	addr string
+	log  *log.Logger
 }
 
-func NewTcpClient(addr net.Addr) TcpClient {
-	return TcpClient{baseClient: internal.NewClient(addr)}
+func NewTcpClient(addr string) TcpClient {
+	logger := log.New(
+		os.Stdout,
+		fmt.Sprintf("Client (%s): ", addr),
+		log.LUTC,
+	)
+	return TcpClient{addr: addr, log: logger}
 }
 
 func (c *TcpClient) Connect() error {
-	c.baseClient.Logger.Printf("Connecting client to %q\n", c.baseClient.AddrType.String())
+	c.log.Printf("Connecting client to %q\n", c.addr)
 
-	dial, err := net.Dial(c.baseClient.AddrType.Network(), c.baseClient.AddrType.String())
+	dial, err := net.Dial("tcp", c.addr)
 	if err != nil {
-		c.baseClient.Logger.Printf("Could not connect to %q\n", c.baseClient.AddrType.String())
+		c.log.Printf("Could not connect to %q\n", c.addr)
 		return err
 	}
 
