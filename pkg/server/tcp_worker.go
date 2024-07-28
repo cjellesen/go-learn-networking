@@ -40,16 +40,19 @@ func (t *TcpWorker) Start(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		default:
-			err := t.ProcessConnection(<-t.connQueue)
+		case conn := <-t.connQueue:
+			err := t.ProcessConnection(conn)
 			if err != nil {
 				t.log.Printf("Failed to process connection, failed with error: %s\n", err)
 			}
+		default:
+			continue
 		}
 	}
 }
 
 func (t *TcpWorker) ProcessConnection(conn net.Conn) error {
+	t.log.Printf("Processing connection")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {
 		cancel()
@@ -92,15 +95,17 @@ func (s *TcpWorker) readFromConnection(conn net.Conn, reset_channel chan time.Du
 }
 
 func (s *TcpWorker) respond(payload internal.Payload, conn net.Conn) {
-	var response string
+	var response internal.String
 	payload_type := payload.GetType()
 	switch payload_type {
 	case internal.InitializationPacketType:
-		response = "Hey Ho Sailor, got an InitializationPacketType after connection has been initialized, I don't know how to respond to this"
+		response = internal.String(
+			"Hey Ho Sailor, got an InitializationPacketType after connection has been initialized, I don't know how to respond to this",
+		)
 	case internal.BinaryType:
-		response = "Give me all them bytes!"
+		response = internal.String("Give me all them bytes!")
 	case internal.StringType:
-		response = "Give me all them strings!"
+		response = internal.String("Give me all them strings!")
 	default:
 		s.log.Printf(
 			"Received a payload of unknown type: %d, don't know how to respond \n",
@@ -109,7 +114,7 @@ func (s *TcpWorker) respond(payload internal.Payload, conn net.Conn) {
 		return
 	}
 
-	conn.Write([]byte(response))
+	response.WriteTo(conn)
 }
 
 func (s *TcpWorker) determineConnectionDeadline(ping_timer time.Duration) time.Duration {

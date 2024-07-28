@@ -41,7 +41,8 @@ func (s *TcpServer) Start(ctx context.Context) error {
 	s.spinUpWorkers(ctx)
 
 	s.lsn = lsn
-	go s.accepLoop(ctx)
+	go s.acceptConnections()
+	go s.terminationLoop(ctx)
 	s.logger.Println("Server is actively accepting connections")
 	return nil
 }
@@ -53,14 +54,14 @@ func (s *TcpServer) spinUpWorkers(ctx context.Context) {
 	}
 }
 
-func (s *TcpServer) accepLoop(ctx context.Context) {
+func (s *TcpServer) terminationLoop(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			s.terminate()
-			s.logger.Println("The listener has been terminated")
+			return
 		default:
-			s.acceptConnections()
+			continue
 		}
 	}
 }
@@ -89,5 +90,6 @@ func (s *TcpServer) acceptConnections() {
 		)
 		return
 	}
+
 	s.connQueue <- conn
 }

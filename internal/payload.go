@@ -145,7 +145,7 @@ func (i *InitializationPacket) ReadFrom(r io.Reader) (int64, error) {
 	return n, nil
 }
 
-func (i *InitializationPacket) GetType() PayloadType {
+func (i InitializationPacket) GetType() PayloadType {
 	return InitializationPacketType
 }
 
@@ -201,7 +201,7 @@ func (b *Binary) ReadFrom(r io.Reader) (int64, error) {
 	return n + int64(o), err
 }
 
-func (i *Binary) GetType() PayloadType {
+func (i Binary) GetType() PayloadType {
 	return BinaryType
 }
 
@@ -258,6 +258,6 @@ func (s *String) ReadFrom(r io.Reader) (int64, error) {
 	return n + int64(o), nil
 }
 
-func (i *String) GetType() PayloadType {
-	return BinaryType
+func (i String) GetType() PayloadType {
+	return StringType
 }
